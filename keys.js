@@ -7,9 +7,5 @@ var twitterKeys = {
   access_token_secret: '0fAHgl9qkhPAvhBXdh28l9bwLjSOxgljA47JEOqg34gs1',
 }
 
-//don't need to do it this way but I'm told it's good practice ;)
-var omdbKey = "7b861e19";
-
-// module.exports = omdbKey;
 module.exports = twitterKeys;
 
