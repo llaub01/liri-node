@@ -23,7 +23,23 @@ var client = new Twitter(keys);
 
 // pull cl args from process.argv
 var liriCommand = process.argv[2];
-var title = process.argv[3];
+
+// concat argvs if more than one word title
+if (process.argv[4]) {
+	var title = process.argv[3] + " " + process.argv[4];
+}
+else if (process.argv[5]) {
+	var title = process.argv[3] + " " + process.argv[4] + " " + process.argv[5];
+}
+else if (process.argv[6]) {
+	var title = process.argv[3] + " " + process.argv[4] + " " + process.argv[5] + " " + process.argv[6];
+}
+else if (process.argv[7]) {
+	var title = process.argv[3] + " " + process.argv[4] + " " + process.argv[5] + " " + process.argv[6] + " " + process.argv[7];
+}
+else {
+	var title = process.argv[3];
+}
 
 // switch for command line arguments
 switch (liriCommand) {
@@ -51,10 +67,9 @@ function myTweets() {
     		//cycle through tweets and log 'em
 			for (i = 0; i < tweets.length; i++)
 				console.log("\n*************************\n" + tweets[i].created_at + "\n" + tweets[i].text + "\n*************************");
-				// console.log(tweets[i].text);
     	}
     	else {
-      		console.log(error);
+      		console.log("Error: " + error);
     	}
 	});
 }
@@ -70,9 +85,9 @@ function spotifyThisSong() {
 		secret: "9bcc87f0b53840eab5a0a32bdbf40538",
 	});
 	 
-	spotify.search({ type: "track", query: title, limit: 10 }, function(err, data) {
+	spotify.search({ type: "track", query: title, limit: 10 }, function(error, data) {
 		if (err) {
-			return console.log("Error occurred: " + err);
+			return console.log("Error: " + error);
 		}
 
 		songOptions = data.tracks.items;
@@ -120,6 +135,7 @@ function movieThis() {
  	var movieChoices = [];
  	var omdbSearchUrl = "http://www.omdbapi.com/?s=" + title + "&type=movie&r=json&apikey=7b861e19";
 
+ 	// search for matching results from omdb
  	request(omdbSearchUrl, function(error, response, body){
 		if (!error && response.statusCode == 200) {
 			var tempMovie = JSON.parse(body);
@@ -139,7 +155,7 @@ function movieThis() {
 					name: "pickedMovie",
 					default: movieChoices[0],
 				}]).then(function(results) {
-					// get conf movie data from inquirer
+					// get confirmation movie data from inquirer
 					var finalMovie = results.pickedMovie.split(" - ");
 
 					console.log(results);
@@ -149,7 +165,7 @@ function movieThis() {
 					omdbMovieUrl = "http://www.omdbapi.com/?t=" + finalMovie[0] + "&type=movie&y=" + finalMovie[1] + "&r=json&apikey=7b861e19";
 					console.log(omdbMovieUrl);
 
-					// get that movie data
+					// get that specific movie data
 					request(omdbMovieUrl, function(error, response, body){
 						console.log(body.Ratings[0].Value);
 						console.log(body.Ratings[1].Value);
@@ -159,16 +175,16 @@ function movieThis() {
 	    	}
 		}
 		else {
-			console.log(error);
+			console.log("Error: " + error);
 		}
 	});
 }
 
 // read what the file says to do
 function doWhatItSays() {
-	fs.readFile("./random.txt", 'utf8', function(err, data) {
-		if (err) {
-			console.log(err);
+	fs.readFile("./random.txt", 'utf8', function(error, data) {
+		if (error) {
+			console.log("Error: " + error);
 		}
 
 		doIt = data.split(",");
@@ -182,11 +198,9 @@ function doWhatItSays() {
 				break;
 			case "spotify-this-song":
 				spotifyThisSong();
-				title = doIt[1];
 				break;
 			case "movie-this":
 				movieThis();
-				title = doIt[1];
 				break;
 			default:
 				console.log("*************************\nYou're doing it wrong... let me help.\n*************************\nWithin the random.txt file, TYPE:\n'my-tweets' to view your most recent tweets.\n'spotify-this-song <song name>' to get info about a song.\n'movie-this <movie name>' to get info about a movie.\n'do-what-it-says' to read instructions from the 'random.txt' file.\n*************************");
