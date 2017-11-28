@@ -65,8 +65,13 @@ function myTweets() {
 	client.get('statuses/user_timeline', { screen_name: 'll_bootcamping', count: 20 }, function(error, tweets, response) {
     	if (!error) {
     		//cycle through tweets and log 'em
-			for (i = 0; i < tweets.length; i++)
-				console.log("\n*************************\n" + tweets[i].created_at + "\n" + tweets[i].text + "\n*************************");
+			for (i = 0; i < tweets.length; i++) {
+				var tweetDisplay = "*************************\n" + tweets[i].created_at + "\n" + tweets[i].text + "\n*************************\n";
+				console.log(tweetDisplay);
+
+				var logData = "\n" + Date.now() + "\n" + tweetDisplay;
+				writeLog(logData);
+			}
     	}
     	else {
       		console.log("Error: " + error);
@@ -86,12 +91,11 @@ function spotifyThisSong() {
 	});
 	 
 	spotify.search({ type: "track", query: title, limit: 10 }, function(error, data) {
-		if (err) {
+		if (error) {
 			return console.log("Error: " + error);
 		}
 
 		songOptions = data.tracks.items;
-		console.log(songOptions);
 
 		if (songOptions.length > 1) {
 			//save results to array for content display
@@ -106,13 +110,12 @@ function spotifyThisSong() {
 
 				//save choices in readable array for inquiry
 				songChoices[i] = i + " - " + songOptions[i].artists[0].name + " - " + songOptions[i].album.name;
-				console.log(songChoices[i]);
 			}
 
 			//prompt for confirmation on which song
 			inquirer.prompt([{
 				type: "list",
-				message: "Which song were you trying to find?",
+				message: "What album is this song from?",
 				choices: songChoices,
 				name: "pickedSong",
 				default: songChoices[0],
@@ -122,7 +125,11 @@ function spotifyThisSong() {
 				songIterator = tempSong[0];
 
 				// display that song data
-				console.log("***** SONG INFO *****\nArtist: " + songContent[songIterator].artist + "\nSong Title: " + songContent[songIterator].track + "\nAlbum: " + songContent[songIterator].album + "\nSample URL: " + songContent[songIterator].sampleUrl + "\n*********************");
+				var songDisplay = "******* SONG INFO *******\nArtist: " + songContent[songIterator].artist + "\nSong Title: " + songContent[songIterator].track + "\nAlbum: " + songContent[songIterator].album + "\nSample URL: " + songContent[songIterator].sampleUrl + "\n*************************\n";
+				console.log(songDisplay);
+
+				var logData = "\n" + Date.now() + "\n" + songDisplay;
+				writeLog(logData);
 			});
 		}
 	});
@@ -158,18 +165,18 @@ function movieThis() {
 					// get confirmation movie data from inquirer
 					var finalMovie = results.pickedMovie.split(" - ");
 
-					console.log(results);
-					console.log(finalMovie);
-
 					// movie data url
 					omdbMovieUrl = "http://www.omdbapi.com/?t=" + finalMovie[0] + "&type=movie&y=" + finalMovie[1] + "&r=json&apikey=7b861e19";
-					console.log(omdbMovieUrl);
 
 					// get that specific movie data
 					request(omdbMovieUrl, function(error, response, body){
-						console.log(body.Ratings[0].Value);
-						console.log(body.Ratings[1].Value);
-						console.log("***** MOVIE INFO *****\nTitle: " + body.Title + "\nYear: " + body.Year + "\nIMDB Rating: " + body.Ratings[0].Value + "\nRotten Tomatoes Rating: " + body.Ratings[1].Value + "\nCountry of production: " + body.Country + "\nLanguage: " + body.Language + "\nPlot: " + body.Plot + "\nActors: " + body.Actors + "\n**********************")
+						var tempPickedMovie = JSON.parse(body);
+						
+						var movieDisplay = "******* MOVIE INFO *******\nTitle: " + tempPickedMovie.Title + "\nYear: " + tempPickedMovie.Year + "\nIMDB Rating: " + tempPickedMovie.Ratings[0].Value + "\nRotten Tomatoes Rating: " + tempPickedMovie.Ratings[1].Value + "\nCountry of production: " + tempPickedMovie.Country + "\nLanguage: " + tempPickedMovie.Language + "\nPlot: " + tempPickedMovie.Plot + "\nActors: " + tempPickedMovie.Actors + "\n**************************\n";
+						console.log(movieDisplay);
+
+						var logData = "\n" + Date.now() + " \n" + movieDisplay;
+						writeLog(logData);
 					});
 				});
 	    	}
@@ -204,6 +211,14 @@ function doWhatItSays() {
 				break;
 			default:
 				console.log("*************************\nYou're doing it wrong... let me help.\n*************************\nWithin the random.txt file, TYPE:\n'my-tweets' to view your most recent tweets.\n'spotify-this-song <song name>' to get info about a song.\n'movie-this <movie name>' to get info about a movie.\n'do-what-it-says' to read instructions from the 'random.txt' file.\n*************************");
+		}
+	});
+}
+
+function writeLog(logData) {
+	fs.appendFile('./log.txt', logData, function (error) {
+		if (error) {
+			console.log("Error: " + error);
 		}
 	});
 }
