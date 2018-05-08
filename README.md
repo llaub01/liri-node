@@ -1,2 +1,2 @@
 # liri-node
-LIRI project for Node
+LIRI for Node.js - SIRI type CLI app
